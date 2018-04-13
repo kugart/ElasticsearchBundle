@@ -158,12 +158,17 @@ class MetadataCollector
             try {
                 $documentMapping = $this->getDocumentReflectionMapping($documentReflection);
 
-                var_dump($config, $documentMapping);
-                die;
 
                 if (!$documentMapping) {
                     continue;
                 }
+
+                if (isset($config['meta_data'])) {
+                    foreach ($config['meta_data'] as $key => $type) {
+                        $documentMapping['properties']['_meta']['properties'][$key] = ['type' => $type] ;
+                    }
+                }
+
             } catch (MissingDocumentAnnotationException $exception) {
                 // Not a document, just ignore
                 continue;
@@ -238,8 +243,8 @@ class MetadataCollector
                     }
                 );
 
-                var_dump($mappings);
-                die;
+//                var_dump($mappings);
+//                die;
 
             }
         }

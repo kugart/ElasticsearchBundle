@@ -41,4 +41,7 @@ final class Events
      * The POST_MANAGER_CREATE event occurs after manager is created.
      */
     const POST_MANAGER_CREATE = 'es.post_manager_create';
+
+    const PRE_MANAGER_PERSIST = 'es.pre_manager_persist';
+
 }
