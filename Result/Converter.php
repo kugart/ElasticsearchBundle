@@ -14,8 +14,10 @@ namespace ONGR\ElasticsearchBundle\Result;
 use ONGR\ElasticsearchBundle\Annotation\Nested;
 use ONGR\ElasticsearchBundle\Annotation\Object;
 use ONGR\ElasticsearchBundle\Collection\Collection;
+use ONGR\ElasticsearchBundle\Exception\DocumentParserException;
 use ONGR\ElasticsearchBundle\Mapping\MetadataCollector;
 use ONGR\ElasticsearchBundle\Service\Manager;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * This class converts array to document object.
@@ -69,10 +71,10 @@ class Converter
                 break;
         }
 
-        var_dump($rawData);
-        die;
+        $object = (new \ReflectionClass($metadata['namespace']))
+            ->newInstanceWithoutConstructor();
 
-        $object = $this->assignArrayToObject($rawData, new $metadata['namespace'](), $metadata['aliases']);
+        $object = $this->assignArrayToObject($rawData, $object, $metadata['aliases']);
 
         return $object;
     }
@@ -134,7 +136,7 @@ class Converter
             }
 
             if ($aliases[$name]['propertyType'] == 'private') {
-                $object->{$aliases[$name]['methods']['setter']}($value);
+                $this->setProtectedPropertyValue($object, $name, $value);
             } else {
                 $object->{$aliases[$name]['propertyName']} = $value;
             }
@@ -277,4 +279,29 @@ class Converter
 
         return $documentMapping['aliases'];
     }
+
+    /**
+     * @param $object
+     * @param $property
+     * @param $value
+     * @throws DocumentParserException
+     */
+    protected function setProtectedPropertyValue($object, $property, $value)
+    {
+        $reflectionObject = new \ReflectionObject($object);
+
+        if (!$reflectionObject->hasProperty($property)) {
+            $property = lcfirst(Container::camelize($property));
+        }
+
+        if (!$reflectionObject->hasProperty($property)) {
+            throw new DocumentParserException(sprintf('Property %s not found', $property));
+        }
+
+        $reflectionProperty = $reflectionObject->getProperty($property);
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($object, $value);
+    }
+
+
 }

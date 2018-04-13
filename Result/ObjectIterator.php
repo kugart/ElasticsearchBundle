@@ -59,9 +59,12 @@ class ObjectIterator extends Collection
      */
     protected function convertDocument(array $document)
     {
+        $object = (new \ReflectionClass($this->alias['namespace']))
+            ->newInstanceWithoutConstructor();
+
         return $this->converter->assignArrayToObject(
             $document,
-            new $this->alias['namespace'](),
+            $object,
             $this->alias['aliases']
         );
     }

@@ -345,15 +345,7 @@ class DocumentParser
     private function getMutatorMethods(\ReflectionClass $reflectionClass, $property, $propertyType)
     {
         $camelCaseName = ucfirst(Caser::camel($property));
-        $setterName = 'set'.$camelCaseName;
-        if (!$reflectionClass->hasMethod($setterName)) {
-            $message = sprintf(
-                'Missing %s() method in %s class. Add it, or change property to public.',
-                $setterName,
-                $reflectionClass->getName()
-            );
-            throw new \LogicException($message);
-        }
+        $setterName = 'depricated';
 
         if ($reflectionClass->hasMethod('get'.$camelCaseName)) {
             return [

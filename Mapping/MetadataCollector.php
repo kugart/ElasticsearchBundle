@@ -140,12 +140,27 @@ class MetadataCollector
         // Loop through documents found in bundle.
         foreach ($documents as $document) {
 
-            $documentClass = 'Profitbase\Application\MarketingHub\Request\\' . $document;
+            if (isset($config['prefix'])) {
 
-            $documentReflection = new \ReflectionClass($documentClass);
+                $documentClass = $config['prefix'] . '\\' . $document;
+                $documentReflection = new \ReflectionClass($documentClass);
+
+            } else {
+
+                $documentReflection = new \ReflectionClass(
+                    $bundleNamespace .
+                    '\\' . $documentDir .
+                    '\\' . $document
+                );
+
+            }
 
             try {
                 $documentMapping = $this->getDocumentReflectionMapping($documentReflection);
+
+                var_dump($config, $documentMapping);
+                die;
+
                 if (!$documentMapping) {
                     continue;
                 }
@@ -222,6 +237,10 @@ class MetadataCollector
                         return (bool)$value || is_bool($value);
                     }
                 );
+
+                var_dump($mappings);
+                die;
+
             }
         }
 
